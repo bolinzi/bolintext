@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			*{margin: 0;padding: 0;}
+			ul,ol li{list-style: none;}
+			div{
+				border: 1px solid;
+				width: 600px;
+				height: 400px;
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				right: 0;
+				margin:auto;
+				overflow: hidden;
+			}
+			div ul{
+				width: 600px;
+				height: 4000px;
+				position: absolute;
+				top:-400px;
+			}
+			div ul li a img{
+				vertical-align: top;
+			}
+			div ul li a{
+				text-decoration: none;
+			}
+			div ul li a img{
+				width: 600px;
+				height: 400px;
+			}
+			div #Left{
+				text-decoration: none;
+				position: absolute;
+				top: 50%;
+				margin-top: -10px;
+				height: 40px;
+				line-height: 32px;
+				text-align: center;
+				width: 40px;
+				font-size: 40px;
+				vertical-align: middle;
+				color: #fff;
+				background: rgba(0,0,0,0.5);
+				left:0;
+			}
+			div #Right{
+				text-decoration: none;
+				position: absolute;
+				top: 50%;
+				margin-top: -10px;
+				height: 40px;
+				line-height: 32px;
+				text-align: center;
+				width: 40px;
+				font-size: 40px;
+				vertical-align: middle;
+				color: #fff;
+				background: rgba(0,0,0,0.5);
+				right: 0;
+			}
+			div ol{
+				position: absolute;
+				width:150px;
+				right:20px;
+				top:380px;
+				display: flex;
+				justify-content: space-around;
+				align-items: center;
+				cursor: pointer;
+			}
+			div ol li{
+				height: 20px;
+				width: 20px;
+				border-radius: 40px;
+				background-color: #fff;
+				opacity: 0.9;
+				text-align: center;
+				line-height: 20px;
+				font-size: 12px;
+			}
+			div ol li.ac{
+				background-color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<ul>
+				<li><a href=""><img src="6.jpg" alt</a></li>
+				<li><a href=""><img src="1.jpg" alt=""></a></li>
+				<li><a href=""><img src="2.jpg" alt=""></a></li>
+				<li><a href=""><img src="3.jpg" alt=""></a></li>
+				<li><a href=""><img src="4.jpg" alt=""></a></li>
+				<li><a href=""><img src="5.jpg" alt=""></a></li>
+				<li><a href=""><img src="6.jpg" alt=""></a></li>
+				<li><a href=""><img src="1.jpg" alt=""></a></li>
+			</ul>
+			<ol>
+				
+			</ol>
+			<a id="Left">&laquo;</a>
+			<a id="Right">&raquo;</a>
+		</div>
+		<script type="text/javascript">
+			class carousel{
+				constructor(selector){
+					this.index = 0;
+					this.lastIndex = 0;
+					this.box = document.querySelector(selector);
+					this.btns = [];//存放btns的空数组
+					this.ul = this.box.querySelector("ul");
+					this.ol = this.box.querySelector("ol");
+					this.Left = this.box.querySelector("#Left");
+					this.Right = this.box.querySelector("#Right");
+					this.lis = this.ul.querySelectorAll("li");
+					this.init();
+					this.autoPaly();
+					this.leave();
+					this.enter();
+				}	
+				// 绑定写入btns事件
+				init(){
+					for(let i=0;i<=this.lis.length-3;i++){
+						var li=document.createElement("li");
+						li.innerText=i+1;
+						if(i===0) li.classList.add("ac");
+						this.ol.appendChild(li);
+						this.btns.push(li);	
+					}
+					this.btnsClick();
+					this.LeftMove();
+					this.RightMove();
+				}
+				
+				// 绑定btns点击事件
+				btnsClick(){
+					for(let i=0; i < this.btns.length; i++){
+						this.btns[i].onclick= () =>{
+							this.index = i;
+							this.change();
+							this.lastIndex = this.index;
+						}
+					}
+				}
+				// 编写Left移动
+				LeftMove(){
+					this.Left.onclick = () =>{
+						this.index--;
+						if(this.index < 0){
+							this.index = this.btns.length-1;
+							this.ul.style.top=-(this.btns.length+1)*400+"px";
+						}
+						this.change();
+						this.lastIndex = this.index;
+					}
+				}
+				// 编写Right移动
+				RightMove(){
+					this.Right.onclick = () =>{
+						this.index++;
+						if(this.index === this.lis.length-2){
+							this.index = 0;
+							this.ul.style.top = 0; 
+						}
+						this.change();
+						this.lastIndex = this.index;
+					}
+				}
+				// 编写change
+				change(){
+					this.btns[this.lastIndex].classList.remove("ac");
+					this.btns[this.index].classList.add("ac");
+					this.move(this.ul,'top',-(this.index+1)*400)
+				}
+				// move方法
+				move(obj,attr,end){
+					clearInterval(obj.timer);
+					
+					let start = parseInt(this.getStyle(obj, attr));
+					
+					obj.timer = setInterval(function () {
+						let distance = end - start;
+						
+						let speed = distance > 0 ? Math.ceil(distance / 10) : Math.floor(distance / 10);
+						start += speed;
+						obj.style[attr] = start + "px";
+						if(start === end) {
+							clearInterval(obj.timer);
+						}
+					}, 50);
+				}
+				
+				getStyle(obj, attr) {
+					return obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj, false)[attr];
+				}
+				// 自动播放
+				autoPaly(){
+				this.timer = setInterval(function(){
+						this.Right.onclick();
+						}.bind(this),2500)
+				}
+				enter(){
+					this.box.onmouseenter=()=>{
+					clearInterval(this.timer);
+					}
+				}
+				leave(){
+					this.box.onmouseleave=()=>{
+					this.autoPaly();
+					}
+				}
+			}
+			new carousel("div");
+		</script>
+	</body>
+</html>
+
